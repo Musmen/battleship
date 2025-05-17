@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 
 import { clientMessagesController } from '../clientMessages/clientMessages.controller.ts';
 
-import { ClientResponse } from '../../types/ClientResponse.ts';
+import type { ClientResponse } from '../../types/ClientResponse.ts';
 
 class WebSocketController {
   private socket: WebSocket | null = null;

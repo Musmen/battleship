@@ -1,6 +1,6 @@
 import { responseController } from '../response/response.controller.ts';
 
-import { ClientRequest } from '../../types/ClientRequest.ts';
+import type { ClientRequest } from '../../types/ClientRequest.ts';
 
 export const clientMessagesController = (clientMessage: string) => {
   try {
@@ -13,14 +13,4 @@ export const clientMessagesController = (clientMessage: string) => {
   } catch (e) {
     console.error(e);
   }
-
-  // {
-  //   type: "reg",
-  //   data:
-  //       {
-  //           name: <string>,
-  //           password: <string>,
-  //       },
-  //   id: 0,
-  // }
 };
