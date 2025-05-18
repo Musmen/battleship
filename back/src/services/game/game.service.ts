@@ -60,9 +60,9 @@ class GameService {
     this.sendTurn(players);
   };
 
-  sendTurn = (players: Player[], currentPlayer?: Player) => {
-    const nextPlayerId = currentPlayer
-      ? players.find((player) => player.id !== currentPlayer.id)
+  sendTurn = (players: Player[], currentPlayerIndex?: number | string) => {
+    const nextPlayerId = currentPlayerIndex
+      ? players.find((player) => player.id !== currentPlayerIndex)?.id
       : players[0].id;
 
     players.forEach((player: Player) => {
@@ -76,6 +76,46 @@ class GameService {
       };
       webSocketController.send(clientResponse, socket);
     });
+  };
+
+  calculateAttack = (
+    gameId: number | string,
+    x: number,
+    y: number,
+    indexPlayer: number | string
+  ) => {
+    const currentGame: Game | undefined = this.getGameById(gameId);
+    if (!currentGame) return;
+
+    const enemyId = currentGame.players.find((player) => player.id != indexPlayer)?.id;
+    if (!enemyId) return;
+
+    const currentBoard = currentGame.boards.get(String(enemyId));
+    if (!currentBoard) return;
+
+    currentBoard[x][y].status = currentBoard[x][y].boardShip ? 'shot' : 'miss'; // TODO логика проверки убит ли корабль и т.д.
+
+    currentGame.players.forEach((player: Player) => {
+      const socket = webSocketController.getPlayerSocket(player);
+      if (!socket) return;
+
+      const clientResponse: ClientResponse = {
+        type: 'attack',
+        id: 0,
+        data: {
+          position: {
+            x,
+            y,
+          },
+          currentPlayer: indexPlayer,
+          status: currentBoard[x][y].status,
+          // status: 'miss' | 'killed' | 'shot',
+        },
+      };
+      webSocketController.send(clientResponse, socket);
+    });
+
+    this.sendTurn(currentGame.players, indexPlayer);
   };
 }
 

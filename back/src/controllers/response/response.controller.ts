@@ -6,9 +6,10 @@ import { webSocketController } from '../webSocket/webSocket.controller.ts';
 import { gameService } from '../../services/game/game.service.ts';
 import { boardService } from '../../services/board/board.service.ts';
 
-import { MAX_PLAYERS } from '../../common/constants.ts';
+import { getRandomNumber } from '../../common/helpers.ts';
 
-import type { AddShipsData, ClientRequest, RegistrationData } from '../../types/ClientRequest.ts';
+import { BOARD_SIZE, MAX_PLAYERS } from '../../common/constants.ts';
+
 import type { ClientResponse } from '../../types/ClientResponse.ts';
 import type { Password, Player } from '../../types/Player.ts';
 import type { CustomWebSocket } from '../../types/CustomWS.ts';
@@ -16,6 +17,13 @@ import type { Room } from '../../types/Room.ts';
 import type { Ship } from '../../types/Ship.ts';
 import type { Game } from '../../types/Game.ts';
 import type { Board } from '../../types/Board.ts';
+import type {
+  AddShipsData,
+  AttackData,
+  ClientRequest,
+  RandomAttackData,
+  RegistrationData,
+} from '../../types/ClientRequest.ts';
 
 export const responseController = (clientRequest: ClientRequest, socket: CustomWebSocket) => {
   switch (clientRequest.type) {
@@ -105,6 +113,20 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
       currentGame.boards.set(indexPlayer, currentBoard);
 
       if (currentGame.boards.size >= MAX_PLAYERS) gameService.startGame(currentGame);
+      break;
+    }
+    case 'attack': {
+      const { gameId, x, y, indexPlayer } = clientRequest.data as AttackData;
+      gameService.calculateAttack(gameId, x, y, indexPlayer);
+      break;
+    }
+    case 'randomAttack': {
+      const { gameId, indexPlayer } = clientRequest.data as RandomAttackData;
+
+      const x = getRandomNumber(BOARD_SIZE);
+      const y = getRandomNumber(BOARD_SIZE);
+
+      gameService.calculateAttack(gameId, x, y, indexPlayer);
       break;
     }
     default:

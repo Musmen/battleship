@@ -21,3 +21,13 @@ export interface AddShipsData {
   ships: Ship[];
   indexPlayer: number | string;
 }
+
+export interface AttackData extends RandomAttackData {
+  x: number;
+  y: number;
+}
+
+export interface RandomAttackData {
+  gameId: number | string;
+  indexPlayer: number | string;
+}
