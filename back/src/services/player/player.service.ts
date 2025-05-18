@@ -1,6 +1,6 @@
 import type { Player } from '../../types/Player.ts';
 
-class PlayersService {
+class PlayerService {
   private players: Player[] = [];
 
   addPlayer = (player: Player) => {
@@ -12,4 +12,4 @@ class PlayersService {
   };
 }
 
-export const playersService = new PlayersService();
+export const playerService = new PlayerService();

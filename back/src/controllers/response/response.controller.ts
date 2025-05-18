@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { playersService } from '../../services/players/players.service.ts';
-import { roomsService } from '../../services/rooms/rooms.service.ts';
+import { playerService } from '../../services/player/player.service.ts';
+import { roomService } from '../../services/room/room.service.ts';
 import { webSocketController } from '../webSocket/webSocket.controller.ts';
 
 import type { ClientRequest, RegistrationData } from '../../types/ClientRequest.ts';
@@ -14,7 +14,7 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
     case 'reg': {
       const { name, password } = clientRequest.data as RegistrationData;
       const newPlayer: Player & Password = { name, password, id: randomUUID() };
-      playersService.addPlayer(newPlayer);
+      playerService.addPlayer(newPlayer);
       socket.player = newPlayer;
 
       const clientResponse: ClientResponse = {
@@ -28,15 +28,15 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
         },
       };
       webSocketController.send(clientResponse, socket);
-      roomsService.updateRoom();
+      roomService.updateRoom();
       break;
     }
     case 'create_room': {
       const currentPlayer = socket.player;
       console.log('currentPlayer: ', currentPlayer);
       if (!currentPlayer) return;
-      roomsService.createNewRoomForPlayer(currentPlayer);
-      roomsService.updateRoom();
+      roomService.createNewRoomForPlayer(currentPlayer);
+      roomService.updateRoom();
       break;
     }
     case 'add_user_to_room': {
@@ -47,8 +47,8 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
       const currentPlayer = socket.player;
       console.log('currentPlayer: ', currentPlayer);
       if (!currentPlayer || !indexRoom) return;
-      roomsService.addUserToRoomByIndex(String(indexRoom), currentPlayer);
-      roomsService.updateRoom();
+      roomService.addUserToRoomByIndex(String(indexRoom), currentPlayer);
+      roomService.updateRoom();
       break;
     }
     default:

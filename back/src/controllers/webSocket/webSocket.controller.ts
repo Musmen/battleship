@@ -1,6 +1,7 @@
 import { clientMessagesController } from '../clientMessages/clientMessages.controller.ts';
-import { playersService } from '../../services/players/players.service.ts';
-import { roomsService } from '../../services/rooms/rooms.service.ts';
+
+import { playerService } from '../../services/player/player.service.ts';
+import { roomService } from '../../services/room/room.service.ts';
 
 import type { ClientResponse } from '../../types/ClientResponse.ts';
 import type { CustomWebSocket } from '../../types/CustomWS.ts';
@@ -11,9 +12,9 @@ class WebSocketController {
   private disconnectSocket = (socket: CustomWebSocket) => {
     if (!socket.player) return;
     const currentPlayerId = socket.player.id;
-    playersService.removePlayerById(currentPlayerId);
-    roomsService.removePlayerFromRooms(currentPlayerId);
-    roomsService.updateRoom();
+    playerService.removePlayerById(currentPlayerId);
+    roomService.removePlayerFromRooms(currentPlayerId);
+    roomService.updateRoom();
   };
 
   init = (socket: CustomWebSocket) => {

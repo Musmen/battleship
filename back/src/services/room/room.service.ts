@@ -8,7 +8,7 @@ import type { ClientResponse } from '../../types/ClientResponse.ts';
 
 const MAX_PLAYERS = 2;
 
-class RoomsService {
+class RoomService {
   static isRoomAvailableToAddPlayer = (room: Room) => room.players.length < MAX_PLAYERS;
 
   private rooms: Room[] = [];
@@ -25,7 +25,7 @@ class RoomsService {
 
     if (
       !currentRoom ||
-      !RoomsService.isRoomAvailableToAddPlayer(currentRoom) ||
+      !RoomService.isRoomAvailableToAddPlayer(currentRoom) ||
       currentRoom.players.includes(player)
     )
       return;
@@ -59,7 +59,7 @@ class RoomsService {
     };
 
     const availableRooms = this.rooms
-      .filter((room: Room) => RoomsService.isRoomAvailableToAddPlayer(room))
+      .filter((room: Room) => RoomService.isRoomAvailableToAddPlayer(room))
       .map((room: Room) => {
         console.log(room);
         return {
@@ -75,4 +75,4 @@ class RoomsService {
   };
 }
 
-export const roomsService = new RoomsService();
+export const roomService = new RoomService();
