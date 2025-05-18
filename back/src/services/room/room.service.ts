@@ -2,11 +2,11 @@ import { randomUUID } from 'node:crypto';
 
 import { webSocketController } from '../../controllers/webSocket/webSocket.controller.ts';
 
-import type { Player } from '../../types/Player.ts';
-import type { Room } from '../../types/Rooms.ts';
-import type { ClientResponse } from '../../types/ClientResponse.ts';
+import { MAX_PLAYERS } from '../../common/constants.ts';
 
-const MAX_PLAYERS = 2;
+import type { Player } from '../../types/Player.ts';
+import type { Room } from '../../types/Room.ts';
+import type { ClientResponse } from '../../types/ClientResponse.ts';
 
 class RoomService {
   static isRoomAvailableToAddPlayer = (room: Room) => room.players.length < MAX_PLAYERS;
@@ -17,20 +17,18 @@ class RoomService {
     this.rooms.push(room);
   };
 
-  private getRoomByIndex = (roomIndex: string): Room | undefined =>
+  getRoomByIndex = (roomIndex: string): Room | undefined =>
     this.rooms.find((room) => String(room.id) === roomIndex);
 
-  addUserToRoomByIndex = (roomIndex: string, player: Player) => {
-    const currentRoom: Room | undefined = this.getRoomByIndex(roomIndex);
+  roomReadyToStartGame = (room: Room | undefined): boolean => {
+    return room ? room.players.length >= MAX_PLAYERS : false;
+  };
 
-    if (
-      !currentRoom ||
-      !RoomService.isRoomAvailableToAddPlayer(currentRoom) ||
-      currentRoom.players.includes(player)
-    )
+  addUserToRoom = (room: Room | undefined, player: Player) => {
+    if (!room || !RoomService.isRoomAvailableToAddPlayer(room) || room.players.includes(player))
       return;
 
-    currentRoom.players.push(player);
+    room.players.push(player);
   };
 
   removePlayerFromRooms = (id: string | number) => {

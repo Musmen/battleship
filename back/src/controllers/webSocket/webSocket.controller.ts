@@ -5,6 +5,7 @@ import { roomService } from '../../services/room/room.service.ts';
 
 import type { ClientResponse } from '../../types/ClientResponse.ts';
 import type { CustomWebSocket } from '../../types/CustomWS.ts';
+import type { Player } from '../../types/Player.ts';
 
 class WebSocketController {
   private sockets: CustomWebSocket[] = [];
@@ -17,6 +18,9 @@ class WebSocketController {
     roomService.removeEmptyRooms();
     roomService.updateRoom();
   };
+
+  getPlayerSocket = (player: Player) =>
+    this.sockets.find((socket: CustomWebSocket) => socket.player === player);
 
   init = (socket: CustomWebSocket) => {
     this.sockets.push(socket);
@@ -35,14 +39,15 @@ class WebSocketController {
   };
 
   send = (clientResponse: ClientResponse, socket: CustomWebSocket) => {
+    console.log('send: ', clientResponse);
     const serializedData = JSON.stringify(clientResponse.data);
-    console.log('serializedData: ', serializedData);
-    console.log(
-      'serialized clientResponse: ',
-      JSON.stringify({ ...clientResponse, data: serializedData })
-    );
+    // console.log('serializedData: ', serializedData);
+    // console.log(
+    //   'serialized clientResponse: ',
+    //   JSON.stringify({ ...clientResponse, data: serializedData })
+    // );
     socket.send(JSON.stringify({ ...clientResponse, data: serializedData }));
-    console.log('send: ', JSON.stringify({ ...clientResponse, data: serializedData }));
+    // console.log('send: ', JSON.stringify({ ...clientResponse, data: serializedData }));
   };
 
   broadcast = (clientResponse: ClientResponse) => {

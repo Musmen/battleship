@@ -1,0 +1,82 @@
+import { randomUUID } from 'node:crypto';
+
+import { webSocketController } from '../../controllers/webSocket/webSocket.controller.ts';
+
+import type { Game } from '../../types/Game.ts';
+import type { Player } from '../../types/Player.ts';
+import type { ClientResponse } from '../../types/ClientResponse.ts';
+import type { Board } from '../../types/Board.ts';
+import type { Ship } from '../../types/Ship.ts';
+
+class GameService {
+  private games: Game[] = [];
+
+  private addGame = (game: Game) => {
+    this.games.push(game);
+  };
+
+  getGameById = (id: number | string) => this.games.find((game: Game) => game.id === id);
+
+  createNewGameForPlayers = (players: Player[] | undefined) => {
+    if (!players?.length) return;
+
+    const newGame: Game = {
+      players,
+      id: randomUUID(),
+      boards: new Map<string | number, Board>(),
+      ships: new Map<string | number, Ship[]>(),
+    };
+
+    this.addGame(newGame);
+
+    players.forEach((player: Player) => {
+      const socket = webSocketController.getPlayerSocket(player);
+      if (!socket) return;
+      const clientResponse: ClientResponse = {
+        type: 'create_game',
+        id: 0,
+        data: { idGame: newGame.id, idPlayer: player.id },
+      };
+      webSocketController.send(clientResponse, socket);
+    });
+  };
+
+  startGame = (currentGame: Game) => {
+    const { players } = currentGame;
+
+    if (!players.length) return;
+
+    players.forEach((player: Player) => {
+      const socket = webSocketController.getPlayerSocket(player);
+      if (!socket) return;
+      const clientResponse: ClientResponse = {
+        type: 'start_game',
+        id: 0,
+        data: { ships: currentGame.ships.get(player.id), currentPlayerIndex: player.id },
+      };
+      webSocketController.send(clientResponse, socket);
+    });
+
+    this.sendTurn(players);
+  };
+
+  sendTurn = (players: Player[], currentPlayer?: Player) => {
+    const nextPlayerId = currentPlayer
+      ? players.find((player) => player.id !== currentPlayer.id)
+      : players[0].id;
+
+    players.forEach((player: Player) => {
+      const socket = webSocketController.getPlayerSocket(player);
+      if (!socket) return;
+
+      const clientResponse: ClientResponse = {
+        type: 'turn',
+        id: 0,
+        data: { currentPlayer: nextPlayerId },
+      };
+      webSocketController.send(clientResponse, socket);
+    });
+  };
+}
+
+export const gameService = new GameService();

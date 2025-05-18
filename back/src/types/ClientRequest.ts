@@ -1,3 +1,5 @@
+import type { Ship } from './Ship';
+
 export interface ClientRequest {
   type: string;
   data: unknown;
@@ -12,4 +14,10 @@ export interface RegistrationData {
 export interface RegistrationError {
   isError: boolean;
   text: string;
+}
+
+export interface AddShipsData {
+  gameId: number | string;
+  ships: Ship[];
+  indexPlayer: number | string;
 }
