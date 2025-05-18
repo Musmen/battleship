@@ -14,6 +14,7 @@ class WebSocketController {
     const currentPlayerId = socket.player.id;
     playerService.removePlayerById(currentPlayerId);
     roomService.removePlayerFromRooms(currentPlayerId);
+    roomService.removeEmptyRooms();
     roomService.updateRoom();
   };
 

@@ -40,6 +40,10 @@ class RoomService {
     }));
   };
 
+  removeEmptyRooms = () => {
+    this.rooms = this.rooms.filter((room: Room) => room.players.length);
+  };
+
   createNewRoomForPlayer = (player: Player) => {
     const newRoom: Room = {
       players: [player],
