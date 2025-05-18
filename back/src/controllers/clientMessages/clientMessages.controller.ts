@@ -1,16 +1,19 @@
+import WebSocket from 'ws';
+
 import { responseController } from '../response/response.controller.ts';
 
 import type { ClientRequest } from '../../types/ClientRequest.ts';
+import type { CustomWebSocket } from '../../types/CustomWS.ts';
 
-export const clientMessagesController = (clientMessage: string) => {
+export function clientMessagesController(this: WebSocket, clientMessage: string) {
   try {
-    console.log('received: ', JSON.parse(String(clientMessage)));
-    const request: ClientRequest = JSON.parse(String(clientMessage)) as ClientRequest;
+    console.log('received: ', clientMessage);
+    const request: ClientRequest = JSON.parse(clientMessage) as ClientRequest;
     const { type, data, id } = request;
     const clientRequest: ClientRequest = { type, data: JSON.parse(String(data) || '{}'), id };
 
-    responseController(clientRequest);
+    responseController(clientRequest, this as CustomWebSocket);
   } catch (e) {
     console.error(e);
   }
-};
+}

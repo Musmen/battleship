@@ -1,4 +1,4 @@
-import type { Player } from '../../types/Player';
+import type { Player } from '../../types/Player.ts';
 
 class PlayersService {
   private players: Player[] = [];
@@ -7,7 +7,9 @@ class PlayersService {
     this.players.push(player);
   };
 
-  getLastPlayerIndex = () => this.players.length - 1;
+  removePlayerById = (id: string | number) => {
+    this.players = this.players.filter((player: Player) => player.id !== id);
+  };
 }
 
 export const playersService = new PlayersService();
