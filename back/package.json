@@ -1,0 +1,44 @@
+{
+  "name": "nodejs-battleship",
+  "version": "1.0.0",
+  "description": "Nodejs Battleship backend",
+  "main": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start:back_prod": "npm run register webpack && node ./dist/index.mjs",
+    "start:back_dev": "npm run register nodemon --exec ts-node ./src/index.ts",
+    "start:front": "npm run start --prefix ../",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "register": "cross-env NODE_OPTIONS='--import=./register-ts-node.mjs'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
+    "@eslint/js": "^9.13.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.8.1",
+    "@types/webpack": "^5.28.5",
+    "@types/ws": "^8.18.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.7",
+    "prettier": "3.3.3",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript-eslint": "^8.12.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ws": "^8.18.2"
+  }
+}
