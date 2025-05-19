@@ -11,6 +11,8 @@ import type { Ship } from '../../types/Ship.ts';
 class GameService {
   private games: Game[] = [];
 
+  private nextPlayer = new Map<number | string, number | string>();
+
   private addGame = (game: Game) => {
     this.games.push(game);
   };
@@ -57,13 +59,17 @@ class GameService {
       webSocketController.send(clientResponse, socket);
     });
 
-    this.sendTurn(players);
+    this.sendTurn(currentGame.id, players);
   };
 
-  sendTurn = (players: Player[], currentPlayerIndex?: number | string) => {
+  sendTurn = (gameId: number | string, players: Player[], currentPlayerIndex?: number | string) => {
     const nextPlayerId = currentPlayerIndex
       ? players.find((player) => player.id !== currentPlayerIndex)?.id
       : players[0].id;
+
+    if (!nextPlayerId) return;
+
+    this.nextPlayer.set(gameId, nextPlayerId);
 
     players.forEach((player: Player) => {
       const socket = webSocketController.getPlayerSocket(player);
@@ -86,6 +92,9 @@ class GameService {
   ) => {
     const currentGame: Game | undefined = this.getGameById(gameId);
     if (!currentGame) return;
+
+    const nextPlayerId = this.nextPlayer.get(gameId);
+    if (nextPlayerId !== indexPlayer) return;
 
     const enemyId = currentGame.players.find((player) => player.id != indexPlayer)?.id;
     if (!enemyId) return;
@@ -115,7 +124,8 @@ class GameService {
       webSocketController.send(clientResponse, socket);
     });
 
-    this.sendTurn(currentGame.players, indexPlayer);
+    if (currentBoard[x][y].status === 'miss')
+      this.sendTurn(gameId, currentGame.players, indexPlayer);
   };
 }
 
