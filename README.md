@@ -29,4 +29,6 @@ or
 3. open `new terminal window` and from the main directory `battleship`
 4. run `npm run start` (production mode for `frontend`, app served @ `http://localhost:8181` without nodemon)
 
+Open in Browser `http://localhost:8181` and check application
+
 **Note**: replace `npm` with `yarn` in `package.json` if you use yarn.
