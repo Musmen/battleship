@@ -29,6 +29,9 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
   switch (clientRequest.type) {
     case 'reg': {
       const { name, password } = clientRequest.data as RegistrationData;
+
+      if (!playerService.isValidPlayer(name, password)) return;
+
       const newPlayer: Player & Password = { name, password, id: randomUUID() };
       playerService.addPlayer(newPlayer);
       socket.player = newPlayer;

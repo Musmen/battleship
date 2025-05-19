@@ -1,3 +1,5 @@
+import { styleText } from 'node:util';
+
 import { clientMessagesController } from '../clientMessages/clientMessages.controller.ts';
 
 import { playerService } from '../../services/player/player.service.ts';
@@ -21,13 +23,15 @@ class WebSocketController {
 
   constructor() {
     process.on('SIGINT', () => {
-      console.log(`Process exit. Disconnect all WebSockets connections...`);
+      console.log(styleText(['blue'], `Process exit. Disconnect all WebSockets connections...`));
       for (const socket of this.sockets) socket.close();
       process.exit(0);
     });
 
     process.on('SIGTERM', () => {
-      console.log('\nReceived SIGTERM. Disconnect all WebSockets connections...');
+      console.log(
+        styleText(['blue'], '\nReceived SIGTERM. Disconnect all WebSockets connections...')
+      );
       for (const socket of this.sockets) socket.close();
       process.exit(0);
     });
@@ -53,15 +57,9 @@ class WebSocketController {
   };
 
   send = (clientResponse: ClientResponse, socket: CustomWebSocket) => {
-    console.log('send: ', clientResponse);
+    console.log(styleText(['blue'], 'Result (send response): '), clientResponse);
     const serializedData = JSON.stringify(clientResponse.data);
-    // console.log('serializedData: ', serializedData);
-    // console.log(
-    //   'serialized clientResponse: ',
-    //   JSON.stringify({ ...clientResponse, data: serializedData })
-    // );
     socket.send(JSON.stringify({ ...clientResponse, data: serializedData }));
-    // console.log('send: ', JSON.stringify({ ...clientResponse, data: serializedData }));
   };
 
   broadcast = (clientResponse: ClientResponse) => {

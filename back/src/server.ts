@@ -1,4 +1,5 @@
 import { IncomingMessage } from 'node:http';
+import { styleText } from 'node:util';
 
 import WebSocket, { WebSocketServer } from 'ws';
 
@@ -18,18 +19,28 @@ export const startWebSocketServer = (port: number) => {
   const wss = new WebSocketServer({ port });
   const activeClients = new Set<WebSocket>();
 
-  console.log(`WebSocket Server started with parameters:
+  console.log(
+    styleText(
+      ['blue'],
+      `WebSocket Server started with parameters:
     - Port: ${String(port)}
     - Path: ${wss.options.path ?? '/'}
-    - Max payload: ${String(wss.options.maxPayload)} bytes`);
+    - Max payload: ${String(wss.options.maxPayload)} bytes`
+    )
+  );
 
   wss.on('connection', (ws: WebSocket, request: IncomingMessage) => {
     const ip = String(request.socket.remoteAddress);
 
     activeClients.add(ws);
-    console.log(`New client connected:
+    console.log(
+      styleText(
+        ['blue'],
+        `New client connected:
     - IP: ${ip}
-    - User-Agent: ${String(request.headers['user-agent'])}`);
+    - User-Agent: ${String(request.headers['user-agent'])}`
+      )
+    );
 
     webSocketController.init(ws as CustomWebSocket);
 
@@ -45,11 +56,11 @@ export const startWebSocketServer = (port: number) => {
 
   wss.on('error', (error) => {
     closeAllConnections(activeClients);
-    console.log('WebSocket server error: ', error);
+    console.log(styleText(['blue'], 'WebSocket server error: '), error);
   });
 
   wss.on('close', () => {
     closeAllConnections(activeClients);
-    console.log('WebSocket server closed');
+    console.log(styleText(['blue'], 'WebSocket server closed'));
   });
 };
