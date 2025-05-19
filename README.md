@@ -1,31 +1,32 @@
-# RSSchool NodeJS websocket task template
-> Static http server and base task packages. 
-> By default WebSocket client tries to connect to the 3000 port.
+# RSSchool NodeJS Task "Battleship"
+
+> Main folder contains static http server (`./src/http_server`), frontend (`./front`) and backend (`./back`).
+> By default WebSocket clients tries to connect to the `3000 port`.
 
 ## Installation
-1. Clone/download repo
-2. `npm install`
+
+1. clone/download this repository (with all brunches)
+2. change directory to folder `battleship`
+3. switch to branch `develop`
+4. run `npm install` (dependencies for `frontend`)
+5. change directory to folder `./back`
+6. run `npm install` (dependencies for `backend`)
 
 ## Usage
-**Development**
 
-`npm run start:dev`
+You need to start both backend server and frontend client.
+Possible variants:
 
-* App served @ `http://localhost:8181` with nodemon
+1. in main directory `battleship` change directory to folder `./back`
+2. run `npm run start:back_dev` (development mode for `backend`) or `npm run start:back_prod` (production mode for `backend`)
+3. open `new terminal window` and from the same directory `./back`
+4. run `npm run start:front` (production mode for `frontend`, app served @ `http://localhost:8181` without nodemon)
 
-**Production**
+or
 
-`npm run start`
-
-* App served @ `http://localhost:8181` without nodemon
-
----
-
-**All commands**
-
-Command | Description
---- | ---
-`npm run start:dev` | App served @ `http://localhost:8181` with nodemon
-`npm run start` | App served @ `http://localhost:8181` without nodemon
+1. in main directory `battleship` change directory to folder `./back`
+2. run `npm run start:back_dev` (development mode for `backend`) or `npm run start:back_prod` (production mode for `backend`)
+3. open `new terminal window` and from the main directory `battleship`
+4. run `npm run start` (production mode for `frontend`, app served @ `http://localhost:8181` without nodemon)
 
 **Note**: replace `npm` with `yarn` in `package.json` if you use yarn.
