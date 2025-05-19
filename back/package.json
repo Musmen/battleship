@@ -5,15 +5,14 @@
   "main": "./src/index.ts",
   "type": "module",
   "scripts": {
-    "register": "cross-env NODE_OPTIONS='--import=./register-ts-node.mjs'",
-    "start:prod": "npm run register webpack && node ./dist/index.mjs",
-    "start:dev": "npm run register nodemon --exec ts-node ./src/index.ts",
+    "start:back_prod": "npm run register webpack && node ./dist/index.mjs",
+    "start:back_dev": "npm run register nodemon --exec ts-node ./src/index.ts",
+    "start:front": "npm run start --prefix ../",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "build": "npm run start:prod",
-    "start": "npm run start:dev"
+    "register": "cross-env NODE_OPTIONS='--import=./register-ts-node.mjs'"
   },
   "keywords": [],
   "author": "",
