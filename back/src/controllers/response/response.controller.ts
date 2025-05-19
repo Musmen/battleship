@@ -32,7 +32,7 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
 
       if (!playerService.isValidPlayer(name, password)) return;
 
-      const newPlayer: Player & Password = { name, password, id: randomUUID() };
+      const newPlayer: Player & Password = { name, password, id: randomUUID(), wins: 0 };
       playerService.addPlayer(newPlayer);
       socket.player = newPlayer;
 
@@ -48,6 +48,7 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
       };
       webSocketController.send(clientResponse, socket);
       roomService.updateRoom();
+      gameService.updateWinners(playerService.getPlayers());
       break;
     }
     case 'create_room': {
@@ -116,6 +117,6 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
       break;
     }
     default:
-    // console.log('default!!!');
+      console.error('Unknown command received...');
   }
 };

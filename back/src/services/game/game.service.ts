@@ -1,13 +1,14 @@
 import { randomUUID } from 'node:crypto';
 
 import { webSocketController } from '../../controllers/webSocket/webSocket.controller.ts';
+import { playerService } from '../player/player.service.ts';
+import { BOARD_SIZE } from '../../common/constants.ts';
 
 import type { Game } from '../../types/Game.ts';
 import type { Player } from '../../types/Player.ts';
 import type { ClientResponse } from '../../types/ClientResponse.ts';
 import type { Board } from '../../types/Board.ts';
 import type { Ship } from '../../types/Ship.ts';
-import { BOARD_SIZE } from '../../common/constants.ts';
 
 class GameService {
   private games: Game[] = [];
@@ -195,8 +196,56 @@ class GameService {
       }
     }
 
+    if (isKilled) {
+      let isGameFinished = true;
+
+      for (let x = 0; x < BOARD_SIZE; x++) {
+        for (let y = 0; y < BOARD_SIZE; y++) {
+          const { boardShip } = currentBoard[x][y];
+          if (boardShip && boardShip.endurance > 0) isGameFinished = false;
+        }
+      }
+
+      if (isGameFinished) {
+        this.finishGame(currentGame.players, indexPlayer);
+        return;
+      }
+    }
+
     if (currentBoard[x][y].status === 'miss' || isShotRepeated)
       this.sendTurn(gameId, currentGame.players, indexPlayer);
+  };
+
+  finishGame = (players: Player[], winPlayerId: number | string) => {
+    players.forEach((player: Player) => {
+      const socket = webSocketController.getPlayerSocket(player);
+      if (!socket) return;
+
+      const clientResponse: ClientResponse = {
+        type: 'finish',
+        id: 0,
+        data: {
+          winPlayer: winPlayerId,
+        },
+      };
+      webSocketController.send(clientResponse, socket);
+    });
+    playerService.updateWinPlayer(winPlayerId);
+    this.updateWinners(players);
+  };
+
+  updateWinners = (players: Player[]) => {
+    players.forEach((player: Player) => {
+      const socket = webSocketController.getPlayerSocket(player);
+      if (!socket) return;
+
+      const clientResponse: ClientResponse = {
+        type: 'update_winners',
+        id: 0,
+        data: playerService.getWinnersData(),
+      };
+      webSocketController.send(clientResponse, socket);
+    });
   };
 }
 
