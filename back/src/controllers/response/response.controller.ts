@@ -52,7 +52,6 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
     }
     case 'create_room': {
       const currentPlayer = socket.player;
-      console.log('currentPlayer: ', currentPlayer);
       if (!currentPlayer) return;
       roomService.createNewRoomForPlayer(currentPlayer);
       roomService.updateRoom();
@@ -62,9 +61,7 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
       const { indexRoom } = clientRequest.data as {
         indexRoom: number | string;
       };
-      console.log('indexRoom: ', indexRoom);
       const currentPlayer = socket.player;
-      console.log('currentPlayer: ', currentPlayer);
       if (!currentPlayer || !indexRoom) return;
 
       const currentRoom: Room | undefined = roomService.getRoomByIndex(String(indexRoom));
@@ -77,12 +74,8 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
     }
     case 'add_ships': {
       const { gameId, ships, indexPlayer } = clientRequest.data as AddShipsData;
-      console.log('gameId: ', gameId);
-      console.log('ships: ', ships);
-      console.log('indexPlayer: ', indexPlayer);
 
       const currentGame: Game | undefined = gameService.getGameById(gameId);
-      console.log('currentGame: ', currentGame);
       if (!currentGame) return;
 
       currentGame.ships.set(indexPlayer, ships);
@@ -93,26 +86,16 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
         const startX: number = ship.position.x;
         const startY: number = ship.position.y;
 
-        console.log('ship: ', ship);
-        console.log('startX: ', startX);
-        console.log('startY: ', startY);
-
         let i = 0;
         while (i < ship.length) {
-          console.log('i: ', i);
-
           const currentX: number = ship.direction ? startX : startX + i;
           const currentY: number = ship.direction ? startY + i : startY;
-
-          console.log('currentX: ', currentX);
-          console.log('currentY: ', currentY);
 
           currentBoard[currentX][currentY].boardShip = { ship, endurance: ship.length };
 
           i++;
         }
       });
-      console.log('new board: ', JSON.stringify(currentBoard));
       currentGame.boards.set(indexPlayer, currentBoard);
 
       if (currentGame.boards.size >= MAX_PLAYERS) gameService.startGame(currentGame);
@@ -133,6 +116,6 @@ export const responseController = (clientRequest: ClientRequest, socket: CustomW
       break;
     }
     default:
-      console.log('default!!!');
+    // console.log('default!!!');
   }
 };

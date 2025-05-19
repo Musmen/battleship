@@ -7,6 +7,7 @@ import type { Player } from '../../types/Player.ts';
 import type { ClientResponse } from '../../types/ClientResponse.ts';
 import type { Board } from '../../types/Board.ts';
 import type { Ship } from '../../types/Ship.ts';
+import { BOARD_SIZE } from '../../common/constants.ts';
 
 class GameService {
   private games: Game[] = [];
@@ -90,6 +91,8 @@ class GameService {
     y: number,
     indexPlayer: number | string
   ) => {
+    let isKilled = false;
+
     const currentGame: Game | undefined = this.getGameById(gameId);
     if (!currentGame) return;
 
@@ -102,7 +105,35 @@ class GameService {
     const currentBoard = currentGame.boards.get(String(enemyId));
     if (!currentBoard) return;
 
-    currentBoard[x][y].status = currentBoard[x][y].boardShip ? 'shot' : 'miss'; // TODO логика проверки убит ли корабль и т.д.
+    const isShotRepeated = Boolean(currentBoard[x][y].status);
+
+    if (!isShotRepeated) {
+      if (currentBoard[x][y].boardShip) {
+        const { ship } = currentBoard[x][y].boardShip;
+        const startX: number = ship.position.x;
+        const startY: number = ship.position.y;
+
+        let i = 0;
+        while (i < ship.length) {
+          const currentX: number = ship.direction ? startX : startX + i;
+          const currentY: number = ship.direction ? startY + i : startY;
+
+          if (!currentBoard[currentX][currentY].boardShip) return;
+          currentBoard[currentX][currentY].boardShip.endurance -= 1;
+
+          i++;
+        }
+
+        if (currentBoard[x][y].boardShip.endurance > 0) {
+          currentBoard[x][y].status = 'shot';
+        } else {
+          currentBoard[x][y].status = 'killed';
+          isKilled = true;
+        }
+      } else {
+        currentBoard[x][y].status = 'miss';
+      }
+    }
 
     currentGame.players.forEach((player: Player) => {
       const socket = webSocketController.getPlayerSocket(player);
@@ -118,13 +149,53 @@ class GameService {
           },
           currentPlayer: indexPlayer,
           status: currentBoard[x][y].status,
-          // status: 'miss' | 'killed' | 'shot',
         },
       };
       webSocketController.send(clientResponse, socket);
     });
 
-    if (currentBoard[x][y].status === 'miss')
+    if (isKilled && currentBoard[x][y].boardShip) {
+      const { ship } = currentBoard[x][y].boardShip;
+      const startX: number = ship.position.x;
+      const startY: number = ship.position.y;
+
+      let i = 0;
+      while (i < ship.length) {
+        const currentX: number = ship.direction ? startX : startX + i;
+        const currentY: number = ship.direction ? startY + i : startY;
+
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -1; dy <= 1; dy++) {
+            const missX = currentX + dx;
+            const missY = currentY + dy;
+
+            if (missX >= 0 && missX <= BOARD_SIZE - 1 && missY >= 0 && missY <= BOARD_SIZE - 1) {
+              currentGame.players.forEach((player: Player) => {
+                const socket = webSocketController.getPlayerSocket(player);
+                if (!socket) return;
+
+                const clientResponse: ClientResponse = {
+                  type: 'attack',
+                  id: 0,
+                  data: {
+                    position: {
+                      x: missX,
+                      y: missY,
+                    },
+                    currentPlayer: indexPlayer,
+                    status: currentBoard[missX][missY].status ?? 'missed',
+                  },
+                };
+                webSocketController.send(clientResponse, socket);
+              });
+            }
+          }
+        }
+        i++;
+      }
+    }
+
+    if (currentBoard[x][y].status === 'miss' || isShotRepeated)
       this.sendTurn(gameId, currentGame.players, indexPlayer);
   };
 }
