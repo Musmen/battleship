@@ -19,6 +19,20 @@ class WebSocketController {
     roomService.updateRoom();
   };
 
+  constructor() {
+    process.on('SIGINT', () => {
+      console.log(`Process exit. Disconnect all WebSockets connections...`);
+      for (const socket of this.sockets) socket.close();
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', () => {
+      console.log('\nReceived SIGTERM. Disconnect all WebSockets connections...');
+      for (const socket of this.sockets) socket.close();
+      process.exit(0);
+    });
+  }
+
   getPlayerSocket = (player: Player) =>
     this.sockets.find((socket: CustomWebSocket) => socket.player === player);
 
